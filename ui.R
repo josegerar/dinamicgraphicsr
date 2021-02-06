@@ -1,4 +1,7 @@
 library(shinydashboard)
+source("dataPostgres.R")
+# head(iris)
+# dataPostgres = getDataPostgres()
 
 ui <- dashboardPage(
   dashboardHeader(title = "Tarea 10"),
@@ -19,7 +22,7 @@ ui <- dashboardPage(
               selectInput(
                 inputId = "selectvariables",
                 label = "Seleccione la variable a mostrar",
-                choices = list("Peso" = 1, "Espesor" = 2, "Longitud" = 3, "Ancho" = 4)
+                choices = names(iris)
               )
             ),
             column(

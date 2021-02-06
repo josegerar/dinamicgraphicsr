@@ -4,7 +4,7 @@ library(gridExtra)
 get_histogram = function(datos, xlab, titlelab){
   bindw = (max(xlab)- min(xlab))/ceiling(sqrt(length(datos)))
   hist = ggplot(datos , aes(x =xlab)) +
-    geom_histogram(binwidth = bindw) +
+    geom_histogram(bins = nclass.Sturges(xlab)) +
     labs(title = "Histograma", x = titlelab, y = "Frecuencia", caption = "") +
     theme(axis.text.x = element_text(size=9, angle=90, hjust = 1),
           axis.text.y = element_text(size=9, angle=0))
@@ -51,26 +51,11 @@ get_graphic = function(data, columdata, columname, gnum){
   return(graphic)
 }
 
-get_graphics = function(data, nvar, cant, g1, g2, g3, g4){
-  columdata = NULL
-  columname = NULL
-  if(nvar == 1){
-    columdata = data$peso_promedio
-    columname = "Peso"
-  } else if(nvar == 2){
-    columdata = data$espesor
-    columname = "Espesor"
-  } else if(nvar == 3){
-    columdata = data$longitud
-    columname = "Longitud"
-  } else{
-    columdata = data$ancho
-    columname = "Ancho"
-  }
-  gr1 = get_graphic(data, columdata, columname, g1)
-  gr2 = get_graphic(data, columdata, columname, g2)
-  gr3 = get_graphic(data, columdata, columname, g3)
-  gr4 = get_graphic(data, columdata, columname, g4)
+managerGraphics = function(data, columname, cant, g1, g2, g3, g4){
+  gr1 = get_graphic(data, as.numeric(as.factor(unlist(data[columname]))), columname, g1)
+  gr2 = get_graphic(data, as.numeric(as.factor(unlist(data[columname]))), columname, g2)
+  gr3 = get_graphic(data, as.numeric(as.factor(unlist(data[columname]))), columname, g3)
+  gr4 = get_graphic(data, as.numeric(as.factor(unlist(data[columname]))), columname, g4)
   res = NULL
   if(cant == 1){
     res = gr1
@@ -84,3 +69,7 @@ get_graphics = function(data, nvar, cant, g1, g2, g3, g4){
   }
   return(res)
 }
+
+
+is.numeric(iris["Sepal.Width"])
+is.numeric(unlist(dataPostgres[5]))

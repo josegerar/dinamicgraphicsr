@@ -2,10 +2,12 @@ source("dataPostgres.R")
 source("graficos.R")
 
 server <- function(input, output) {
-  dataPostgres = getDataPostgres()
+  # dataPostgres = getDataPostgres()
+  dataPostgres = iris
   observe({
     cantidad = as.integer(input$selectcantidadgraficos)
-    variable = as.numeric(input$selectvariables)
+    # variable = as.numeric(input$selectvariables)
+    variable = input$selectvariables
     g1 = 0
     g2 = 0
     g3 = 0
@@ -23,7 +25,7 @@ server <- function(input, output) {
       g4 = as.integer(input$sgrafico4)
     }
     output$resultado <- renderPlot({
-      get_graphics(dataPostgres, variable, cantidad, g1, g2, g3, g4)
+      managerGraphics(dataPostgres, variable, cantidad, g1, g2, g3, g4)
     })
   })
 }
