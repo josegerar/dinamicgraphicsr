@@ -69,7 +69,3 @@ managerGraphics = function(data, columname, cant, g1, g2, g3, g4){
   }
   return(res)
 }
-
-
-is.numeric(iris["Sepal.Width"])
-is.numeric(unlist(dataPostgres[5]))

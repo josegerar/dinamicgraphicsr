@@ -1,6 +1,6 @@
 CREATE TABLE public.muestra (
     id SERIAL,
-    id_localidad_plantacion integer NOT NULL,
+    id_localidad_plantacion integer,
     id_tipo_fermentador integer,
     id_tipo_secado integer,
     id_calidad_fermentacion integer,
