@@ -8,19 +8,13 @@ source("tabMuestras.R")
 
 ui <- dashboardPage(
   dashboardHeader(title = "Tarea 10"),
-  dashboardSidebar(
-    sidebarMenu(
-      id = "tabs", 
-      menuItem("Graficos", tabName = "graficos", icon = icon("th")),
-      menuItem("Añadir muestra", tabName = "addmuestra", icon = icon("th")),
-      menuItem("Ver muestras", tabName = "muestras", icon = icon("th"))
-    )
-  ),
-  dashboardBody(
-    tabItems(
-      tabGraficos,
-      tabFormMuestra,
-      tabMuestras
-    )
-  )
+  dashboardSidebar(sidebarMenu(
+    id = "tabs",
+    menuItem("Graficos", tabName = "graficos", icon = icon("th")),
+    menuItem("Añadir muestra", tabName = "addmuestra", icon = icon("th")),
+    menuItem("Ver muestras", tabName = "muestras", icon = icon("th"))
+  )),
+  dashboardBody(tabItems(tabGraficos,
+                         tabFormMuestra,
+                         tabMuestras))
 )

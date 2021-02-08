@@ -6,14 +6,14 @@ shinyInput <- function(FUN, len, id, ids, ...) {
   inputs
 }
 
-getTable <- function(dataref){
+getTable <- function(dataref) {
   datatb = data.frame(
     dataref,
     Accion = shinyInput(
       actionButton,
       nrow(dataref),
       'button_',
-      ids = dataref[,1],
+      ids = dataref[, 1],
       label = "Editar",
       onclick = 'Shiny.onInputChange(\"select_button_edit\",  this.id)'
     ),
@@ -21,7 +21,7 @@ getTable <- function(dataref){
       actionButton,
       nrow(dataref),
       'button_',
-      ids = dataref[,1],
+      ids = dataref[, 1],
       label = "Eliminar",
       onclick = 'Shiny.onInputChange(\"select_button_delete\",  this.id)'
     ),
@@ -30,5 +30,3 @@ getTable <- function(dataref){
   )
   return(datatb)
 }
-
-dataPostgres[,1][1]

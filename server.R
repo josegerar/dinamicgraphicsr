@@ -38,7 +38,6 @@ server <- function(input, output, session) {
     df$data = getTable(dataPostgres)
     RV$data = dataPostgres
     newtab <- switch(input$tabs,
-                     "muestras" = "addmuestra",
                      "addmuestra" = "muestras")
     updateTabItems(session, "tabs", newtab)
   })
@@ -52,15 +51,14 @@ server <- function(input, output, session) {
     for (i in seq_len(nrow(dataPostgres))) {
       if (dataPostgres[i, ][1] == selectedRow) {
         updateNumericInput(session, "idmuestra", value = as.numeric(dataPostgres[i, ][1]))
-        updateNumericInput(session, "longitudmuestra", value = as.numeric(dataPostgres[i, ][2]))
-        updateNumericInput(session, "anchomuestra", value = as.numeric(dataPostgres[i, ][3]))
-        updateNumericInput(session, "espesormuestra", value = as.numeric(dataPostgres[i, ][4]))
-        updateNumericInput(session, "pesomuestra", value = as.numeric(dataPostgres[i, ][5]))
+        updateNumericInput(session, "pesomuestra", value = as.numeric(dataPostgres[i, ][2]))
+        updateNumericInput(session, "longitudmuestra", value = as.numeric(dataPostgres[i, ][3]))
+        updateNumericInput(session, "anchomuestra", value = as.numeric(dataPostgres[i, ][4]))
+        updateNumericInput(session, "espesormuestra", value = as.numeric(dataPostgres[i, ][5]))
       }
     }
     newtab <- switch(input$tabs,
-                     "muestras" = "addmuestra",
-                     "addmuestra" = "muestras")
+                     "muestras" = "addmuestra")
     updateTabItems(session, "tabs", newtab)
   })
   

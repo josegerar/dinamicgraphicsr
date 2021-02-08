@@ -30,6 +30,7 @@ editMuestra <- function(id, peso, longitud, ancho, espesor){
     conn = con,
     paste("update muestra set peso_promedio=", peso, ", longitud="
           , longitud, ", ancho=", ancho, ", espesor=", espesor, " where id=", id)
+    , immediate = TRUE
   )
 }
 
