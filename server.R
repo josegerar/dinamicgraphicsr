@@ -1,7 +1,11 @@
 library(DT)
+library(readxl)
+library(rio)
+library(shiny)
 source("dataPostgres.R")
 source("graficos.R")
 source("functions.R")
+source('uploadManager.R')
 dataPostgres = getDataPostgres()
 RV <- reactiveValues(data = dataPostgres)
 
@@ -49,12 +53,12 @@ server <- function(input, output, session) {
       selectedRow
     })
     for (i in seq_len(nrow(dataPostgres))) {
-      if (dataPostgres[i, ][1] == selectedRow) {
-        updateNumericInput(session, "idmuestra", value = as.numeric(dataPostgres[i, ][1]))
-        updateNumericInput(session, "pesomuestra", value = as.numeric(dataPostgres[i, ][2]))
-        updateNumericInput(session, "longitudmuestra", value = as.numeric(dataPostgres[i, ][3]))
-        updateNumericInput(session, "anchomuestra", value = as.numeric(dataPostgres[i, ][4]))
-        updateNumericInput(session, "espesormuestra", value = as.numeric(dataPostgres[i, ][5]))
+      if (dataPostgres[i,][1] == selectedRow) {
+        updateNumericInput(session, "idmuestra", value = as.numeric(dataPostgres[i,][1]))
+        updateNumericInput(session, "pesomuestra", value = as.numeric(dataPostgres[i,][2]))
+        updateNumericInput(session, "longitudmuestra", value = as.numeric(dataPostgres[i,][3]))
+        updateNumericInput(session, "anchomuestra", value = as.numeric(dataPostgres[i,][4]))
+        updateNumericInput(session, "espesormuestra", value = as.numeric(dataPostgres[i,][5]))
       }
     }
     newtab <- switch(input$tabs,
@@ -106,5 +110,85 @@ server <- function(input, output, session) {
                                                 server = FALSE,
                                                 escape = FALSE,
                                                 selection = 'none')
+  })
+  
+  observeEvent(input$uploadXLS, {
+    if (is.null(input$uploadXLS)) {
+      showNotification("xls o xlsx no seleccionado")
+    }
+    inFile <- input$uploadXLS
+    ext <- tools::file_ext(inFile$datapath)
+    req(inFile)
+    validate(need(
+      ext == "xls" ||
+        ext == "xlsx",
+      "Por favor, seleccione un archivo xls o xlsx"
+    ))
+    file.rename(inFile$datapath,
+                paste(inFile$datapath, ".xlsx", sep = ""))
+    process_xsl = read_excel(paste(inFile$datapath, ".xlsx", sep = ""),
+                             1,
+                             col_names = input$header)
+    update_select_input_data(session, process_xsl, CASO_ESTUDIO_FIELD, "selectcasoestudio")
+    update_select_input_data(session, process_xsl, MUESTRA_FIELD, "selectmuestraupload")
+    update_select_input_data(session, process_xsl, PESO_FIELD, "selectpesoupload")
+    update_select_input_data(session, process_xsl, LONGITUD_FIELD, "selectlongitudupload")
+    update_select_input_data(session, process_xsl, ANCHO_FIELD, "selectanchoupload")
+    update_select_input_data(session, process_xsl, PESO_FIELD, "selectespesorupload")
+    update_select_input_data(session, process_xsl, PESO_FIELD, "selectyearmuestraupload")
+    update_select_input_data(session, process_xsl, PESO_FIELD, "selectmesmuestraupload")
+    update_select_input_data(session, process_xsl, PESO_FIELD, "selectdiamuestraupload")
+  }, ignoreInit = TRUE, ignoreNULL = FALSE)
+  
+  dataXSL <- reactive({
+    if (is.null(input$uploadXLS)) {
+      showNotification("xls o xlsx no seleccionado")
+    }
+    inFile <- input$uploadXLS
+    ext <- tools::file_ext(inFile$datapath)
+    req(inFile)
+    validate(need(
+      ext == "xls" ||
+        ext == "xlsx",
+      "Por favor, seleccione un archivo xls o xlsx"
+    ))
+    file.rename(inFile$datapath,
+                paste(inFile$datapath, ".xlsx", sep = ""))
+    process_xsl = read_excel(paste(inFile$datapath, ".xlsx", sep = ""),
+                             1,
+                             col_names = input$header)
+    data_process = proccess_data(
+      data = process_xsl, 
+      name_ce = input$selectcasoestudio, 
+      name_m = input$selectmuestraupload, 
+      name_p = input$selectpesoupload, 
+      name_a = input$selectanchoupload, 
+      name_e = input$selectespesorupload, 
+      name_l = input$selectlongitudupload,
+      name_am = input$selectyearmuestraupload,
+      name_mm = input$selectmesmuestraupload,
+      name_dm = input$selectdiamuestraupload
+    )
+    #data_process = get_field_data(data = process_xsl)
+    data_process
+  })
+  
+  observeEvent(input$btnGuardarArchivo, {
+    if (is.null(input$uploadXLS)) {
+      showNotification("xls o xlsx no seleccionado")
+    }
+    inFile <- input$uploadXLS
+    ext <- tools::file_ext(inFile$datapath)
+    req(inFile)
+    validate(need(
+      ext == "xls" ||
+        ext == "xlsx",
+      "Por favor, seleccione un archivo xls o xlsx"
+    ))
+    export(dataXSL(), "./datos/cacao.json")
+  })
+  
+  output$contentsUpload <- renderTable({
+    dataXSL()
   })
 }
