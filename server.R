@@ -1,6 +1,7 @@
 library(DT)
 library(readxl)
 library(rio)
+library(jsonlite)
 library(shiny)
 source("dataPostgres.R")
 source("graficos.R")
@@ -119,7 +120,7 @@ server <- function(input, output, session) {
     inFile <- input$uploadXLS
     ext <- tools::file_ext(inFile$datapath)
     req(inFile)
-    validate(need(
+    shiny::validate(need(
       ext == "xls" ||
         ext == "xlsx",
       "Por favor, seleccione un archivo xls o xlsx"
@@ -141,35 +142,42 @@ server <- function(input, output, session) {
   }, ignoreInit = TRUE, ignoreNULL = FALSE)
   
   dataXSL <- reactive({
+    data_process = NULL
     if (is.null(input$uploadXLS)) {
       showNotification("xls o xlsx no seleccionado")
+    } else {
+      inFile <- input$uploadXLS
+      ext <- tools::file_ext(inFile$datapath)
+      req(inFile)
+      shiny::validate(need(
+        ext == "xls" ||
+          ext == "xlsx",
+        "Por favor, seleccione un archivo xls o xlsx"
+      ))
+      file.rename(inFile$datapath,
+                  paste(inFile$datapath, ".xlsx", sep = ""))
+      process_xsl = read_excel(paste(inFile$datapath, ".xlsx", sep = ""),
+                               1,
+                               col_names = input$header) 
+      data_process = proccess_data(
+        data = process_xsl, 
+        name_ce = input$selectcasoestudio, 
+        name_m = input$selectmuestraupload, 
+        name_p = input$selectpesoupload, 
+        name_a = input$selectanchoupload, 
+        name_e = input$selectespesorupload, 
+        name_l = input$selectlongitudupload,
+        name_am = input$selectyearmuestraupload,
+        name_mm = input$selectmesmuestraupload,
+        name_dm = input$selectdiamuestraupload
+      )
     }
-    inFile <- input$uploadXLS
-    ext <- tools::file_ext(inFile$datapath)
-    req(inFile)
-    validate(need(
-      ext == "xls" ||
-        ext == "xlsx",
-      "Por favor, seleccione un archivo xls o xlsx"
-    ))
-    file.rename(inFile$datapath,
-                paste(inFile$datapath, ".xlsx", sep = ""))
-    process_xsl = read_excel(paste(inFile$datapath, ".xlsx", sep = ""),
-                             1,
-                             col_names = input$header)
-    data_process = proccess_data(
-      data = process_xsl, 
-      name_ce = input$selectcasoestudio, 
-      name_m = input$selectmuestraupload, 
-      name_p = input$selectpesoupload, 
-      name_a = input$selectanchoupload, 
-      name_e = input$selectespesorupload, 
-      name_l = input$selectlongitudupload,
-      name_am = input$selectyearmuestraupload,
-      name_mm = input$selectmesmuestraupload,
-      name_dm = input$selectdiamuestraupload
-    )
-    #data_process = get_field_data(data = process_xsl)
+    if (is.null(data_process)) {
+      data_process <- fromJSON("./datos/cacao.json")
+    } else {
+      old_data_process <- fromJSON("./datos/cacao.json")
+      data_process = Reduce(function(...) merge (..., all=T), list(data_process, old_data_process))
+    }
     data_process
   })
   
@@ -180,15 +188,19 @@ server <- function(input, output, session) {
     inFile <- input$uploadXLS
     ext <- tools::file_ext(inFile$datapath)
     req(inFile)
-    validate(need(
+    shiny::validate(need(
       ext == "xls" ||
         ext == "xlsx",
       "Por favor, seleccione un archivo xls o xlsx"
     ))
-    export(dataXSL(), "./datos/cacao.json")
+    ddd = toJSON(dataXSL())
+    write(ddd, "./datos/cacao.json")
   })
   
-  output$contentsUpload <- renderTable({
-    dataXSL()
-  })
+  output$contentsUpload <- DT::renderDataTable(DT::datatable(
+    dataXSL(),
+    escape = FALSE,
+    options = list(autoWidth = TRUE,
+                   scrollX = TRUE)
+  ))
 }

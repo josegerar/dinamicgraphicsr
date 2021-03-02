@@ -1,10 +1,12 @@
+library(data.table)
+
 CASO_ESTUDIO_FIELD = 'caso_estudio'
 MUESTRA_FIELD = 'muestra'
 ANCHO_FIELD = 'ancho'
 PESO_FIELD = 'peso'
 ESPESOR_FIELD = 'espesor'
 LONGITUD_FIELD = 'longitud'
-YEAR_FIELD = 'año'
+YEAR_FIELD = 'anio'
 MES_FIELD = 'mes'
 DIA_FIELD = 'dia'
 
@@ -39,33 +41,50 @@ get_field_data = function(name, data){
 
 proccess_data = function(data, name_ce, name_m, name_p, name_a, name_e, name_l, name_am, name_mm, name_dm){
   ds_cacao = get_dataset(n_row = nrow(data))
+  existe = FALSE
   for (id in seq_len(ncol(data))) {
+    existe = FALSE
     if(names(data)[id] == name_ce){
       ds_cacao[1] = data[id]
+      existe = TRUE
     }
     if(names(data)[id] == name_m){
       ds_cacao[2] = data[id]
+      existe = TRUE
     }
     if(names(data)[id] == name_p){
       ds_cacao[3] = data[id]
+      existe = TRUE
     }
     if(names(data)[id] == name_a){
       ds_cacao[4] = data[id]
+      existe = TRUE
     }
     if(names(data)[id] == name_e){
       ds_cacao[5] = data[id]
+      existe = TRUE
     }
     if(names(data)[id] == name_l){
       ds_cacao[6] = data[id]
+      existe = TRUE
     }
     if(names(data)[id] == name_am){
       ds_cacao[7] = data[id]
+      existe = TRUE
     }
     if(names(data)[id] == name_mm){
       ds_cacao[8] = data[id]
+      existe = TRUE
     }
     if(names(data)[id] == name_dm){
       ds_cacao[9] = data[id]
+      existe = TRUE
+    }
+    if (existe == FALSE){
+      new_label = names(data)[id]
+      ds_cacao = data.frame(ds_cacao, new_label = matrix(nrow = nrow(data), ncol = 1))
+      setnames(ds_cacao,old = 'new_label', new = new_label)
+      ds_cacao[ncol(ds_cacao)] = data[id]
     }
   }
   return(ds_cacao)

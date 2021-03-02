@@ -1,5 +1,6 @@
 library(shinydashboard)
 library(shiny)
+library(DT)
 tabUploadFile <- tabItem(
   tabName = "upload",
   h2('Subir archivos con datos de muestras'),
@@ -73,12 +74,12 @@ tabUploadFile <- tabItem(
       )
     ),
     
-    # Main panel for displaying outputs ----
     mainPanel(
-      # Output: Data file ----
-      tableOutput("contentsUpload"),
+      fluidRow(column(
+        width = 12,
+        DT::dataTableOutput("contentsUpload")
+      )),
       actionButton(inputId = "btnGuardarArchivo", label = "Guardar muestras de archivo")
-      
     )
     
   )
